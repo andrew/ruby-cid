@@ -21,7 +21,7 @@ Or install it yourself as:
 ## Usage
 
 ```ruby
-Cid.parse('QmWnbmm4zycab2b9TraMEVrmCuKqo1vVynxLyhpCRxmknh')
+Cid.decode('QmWnbmm4zycab2b9TraMEVrmCuKqo1vVynxLyhpCRxmknh')
 ```
 
 ## Development
