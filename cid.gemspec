@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'base58'
   spec.add_dependency 'multibases'
   spec.add_dependency 'multicodecs'
+  spec.add_dependency 'varint'
 
   spec.add_development_dependency "rspec", "~> 3.10"
 end

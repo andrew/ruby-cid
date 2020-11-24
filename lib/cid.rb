@@ -1,4 +1,5 @@
 require "cid/version"
+require 'cid/varint'
 require 'delegate'
 require 'base58'
 require 'ostruct'
@@ -30,11 +31,12 @@ module Cid
       multicodec = Multicodecs[multicodec_identifer]
 
       encoded_multihash = decoded[2..-1]
-      code = encoded_multihash[0]
+
+      io = StringIO.new encoded_multihash.pack('c*')
+      code = Varint.decode(io)
       codec = Multicodecs[code]
-      length = encoded_multihash[1]*8
-      byte_array = encoded_multihash[2..-1]
-      digest = byte_array.pack('c*')
+      length = Varint.decode(io)*8
+      digest = io.read
 
       multihash = OpenStruct.new(code: codec.code, name: codec.name, bits: length, digest: digest)
 
