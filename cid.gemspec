@@ -22,7 +22,8 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency 'base58'
-  spec.add_dependency 'multihashes'
   spec.add_dependency 'multibases'
   spec.add_dependency 'multicodecs'
+
+  spec.add_development_dependency "rspec", "~> 3.10"
 end

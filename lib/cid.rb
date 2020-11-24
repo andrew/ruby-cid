@@ -10,41 +10,37 @@ module Cid
   extend self
   def decode(string)
     if string.length == 46 && string[0..1] == 'Qm'
-      # CIDv0 decode as base58btc
+      # legacy CIDv0 decode as base58btc
       binary = Base58.base58_to_binary(string, :bitcoin)
       version = 0
-      multicodec = {code: 'implicit', name: 'dag-pb'}
+      multicodec = OpenStruct.new(code: 'implicit', name: 'dag-pb')
 
       integer, length, digest = binary.unpack('CCa*')
 
       mh = {code: integer, hash_function: Multicodecs[integer].name, length: length, digest: digest}
 
-      multihash = {code: mh[:code], name: mh[:hash_function], bits: mh[:digest].bytesize*8, digest: mh[:digest]}
-      multibase = {prefix: 'implicit', name: 'base58btc'}
+      multihash = OpenStruct.new(code: mh[:code], name: mh[:hash_function], bits: mh[:digest].bytesize*8, digest: mh[:digest])
+      multibase = OpenStruct.new(prefix: 'implicit', name: 'base58btc')
     else
       m = Multibases.unpack(string)
+      decoded = m.decode
+      version = decoded[0]
 
-      code = string[0]
-      encoded_data = string[1..-1]
-      engine = Multibases.find_by(code: code)
-      # bytes = encoded_data.bytes
-      p encoded_data
-      p bytes = engine.engine.decode(encoded_data)
+      multicodec_identifer = decoded[1]
+      multicodec = Multicodecs[multicodec_identifer]
 
-      integer, length, digest = bytes.instance_variable_get(:encoding).unpack('CCa*')
+      encoded_multihash = decoded[2..-1]
+      code = encoded_multihash[0]
+      codec = Multicodecs[code]
+      length = encoded_multihash[1]*8
+      byte_array = encoded_multihash[2..-1]
+      digest = byte_array.pack('c*')
 
-      version = integer
+      multihash = OpenStruct.new(code: codec.code, name: codec.name, bits: length, digest: digest)
 
-      multicodec = Multicodecs[length]
-
-      integer, length, digest = digest.unpack('CCa*')
-      mh = {code: integer, hash_function: Multicodecs[integer].name, length: length, digest: digest}
-
-      multihash = {code: mh[:code], name: mh[:hash_function], bits: mh[:digest].bytesize*8, digest: mh[:digest]}
-
-      multibase = {prefix: m.code, name: m.encoding}
+      multibase = OpenStruct.new(prefix: m.code, name: m.encoding)
     end
 
-    cid = OpenStruct.new(version: version, multihash: multihash, multibase: multibase, multicodec: multicodec)
+    OpenStruct.new(version: version, multihash: multihash, multibase: multibase, multicodec: multicodec)
   end
 end
